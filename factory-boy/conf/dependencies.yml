@@ -1,0 +1,4 @@
+self: play -> factory-boy 0.1
+
+require:
+    - play

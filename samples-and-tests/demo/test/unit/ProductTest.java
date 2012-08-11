@@ -1,6 +1,7 @@
 package unit;
 
 import static asserts.ModelAssert.assertModelCount;
+import model.UnUseModel;
 import models.Product;
 
 import org.junit.Before;
@@ -10,6 +11,7 @@ import play.test.UnitTest;
 import asserts.CallBack;
 import factory.BuildCallBack;
 import factory.FactoryBoy;
+import factory.ProductFactory;
 
 public class ProductTest extends UnitTest {
 	
@@ -19,7 +21,17 @@ public class ProductTest extends UnitTest {
 	public void setUp() {
 		FactoryBoy.init(Product.class);
 	}
-
+	
+	@Test(expected=RuntimeException.class)
+	public void testFindUnExistsModelFactory() {
+		FactoryBoy.findModelFactory(UnUseModel.class);
+	}
+	
+	@Test
+	public void testFindModelFactory() {
+		assertEquals(ProductFactory.class, FactoryBoy.findModelFactory(Product.class).getClass());
+	}
+ 
 	@Test
 	public void testCreateProduct() throws Exception {
 		assertModelCount(Product.class, 1, new CallBack() {
@@ -41,7 +53,7 @@ public class ProductTest extends UnitTest {
 	
 	@Test
 	public void testFindByName() {
-		product = FactoryBoy.create(Product.class, new BuildCallBack<Product>() {
+		Product product = FactoryBoy.create(Product.class, new BuildCallBack<Product>() {
 			@Override
             public Product build(Product target) {
 				target.name = "HHKB";

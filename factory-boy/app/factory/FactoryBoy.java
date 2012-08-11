@@ -1,13 +1,31 @@
 package factory;
 
-import models.Product;
 import play.db.jpa.GenericModel;
+import play.test.Fixtures;
 
 
 public class FactoryBoy {
 
-	public static void init(Class<?>... clazzes) {
-	    	    
+	public static <T extends GenericModel> void init(Class<T>... clazzes) {
+		Fixtures.delete(clazzes);
+		/*
+		for (Class<GenericModel> clazz : clazzes) {
+			
+			ModelFactory<?> modelFactory = findModelFactory(clazz);
+			modelFactory.define();
+		}
+		*/
+    }
+
+	public static <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
+		String clazzFullName = clazz.getName();
+		String modelFactoryName = clazzFullName.replaceAll("^models\\.",	"factory.") + "Factory";
+	    try {
+	        return (ModelFactory<T>)Class.forName(modelFactoryName).newInstance();
+        } catch (Exception e) {
+	        e.printStackTrace();
+        }
+		throw new RuntimeException("Can't find class:" + modelFactoryName);
     }
 
 	/**
@@ -16,7 +34,9 @@ public class FactoryBoy {
 	 * @return
 	 */
 	public static <T extends GenericModel> T create(Class<T> clazz) {
-	    return null;
+		T t = build(clazz);
+		t.save();
+	    return t;
     }
 	
 	/**
@@ -28,6 +48,14 @@ public class FactoryBoy {
 	public static <T extends GenericModel> T create(Class<T> clazz, String name) {
 	    return null;
     }
+
+
+	public static <T extends GenericModel> T create(Class<T> clazz,
+            BuildCallBack<T> buildCallBack) {
+		T t = build(clazz, buildCallBack);
+		t.save();
+	    return t;
+    }
 	
 	/**
 	 * Build the <i>clazz</i> Object, but NOT save it.
@@ -35,7 +63,9 @@ public class FactoryBoy {
 	 * @return
 	 */
 	public static <T extends GenericModel> T build(Class<T> clazz) {
-	    return null;
+		ModelFactory<T> modelFactory = findModelFactory(clazz);
+		T t = modelFactory.define();
+	    return t;
     }
 
 	/**
@@ -48,8 +78,10 @@ public class FactoryBoy {
 	    return null;
     }
 
-	public static Product create(Class<Product> clazz,
-            BuildCallBack buildCallBack) {
-	    return null;
+	public static <T extends GenericModel> T build(Class<T> clazz,
+            BuildCallBack<T> buildCallBack) {
+	    T t = build(clazz);
+	    buildCallBack.build(t);
+	    return t;
     }
 }

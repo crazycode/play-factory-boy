@@ -1,6 +1,9 @@
 package unit;
 
 import static asserts.ModelAssert.assertModelCount;
+
+import java.math.BigDecimal;
+
 import model.UnUseModel;
 import models.Product;
 
@@ -76,4 +79,14 @@ public class ProductTest extends UnitTest {
 		});
 	}
 	
+	@Test
+	public void testGetNamedProduct() throws Exception {
+		product = FactoryBoy.create(Product.class, "hhkb");
+		assertEquals("HHKB", product.name);
+		assertEquals(new BigDecimal("2000.00"), product.price);
+		
+		Product product2 =FactoryBoy.create(Product.class, "hhkb2"); 
+		assertEquals("HHKB Pro2", product2.name);
+		assertEquals(new BigDecimal("2000.00"), product2.price);
+	}
 }

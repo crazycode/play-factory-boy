@@ -1,7 +1,7 @@
 package factory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -153,5 +153,12 @@ public class FactoryBoy {
 	    buildCallBack.build(t);
 	    return t;
     }
+
+	public static <T extends GenericModel> List<T> batchCreate(int size, Class<T> clazz) {
+	    return null;
+    }
 	
+	public static <T extends GenericModel> List<T> batchCreate(int size, Class<T> clazz, SequenceCallBack<T> sequenceCallBack) {
+	    return null;
+    }
 }

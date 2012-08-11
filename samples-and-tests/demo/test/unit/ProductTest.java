@@ -3,6 +3,7 @@ package unit;
 import static asserts.ModelAssert.assertModelCount;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import model.UnUseModel;
 import models.Product;
@@ -89,4 +90,16 @@ public class ProductTest extends UnitTest {
 		assertEquals("HHKB Pro2", product2.name);
 		assertEquals(new BigDecimal("2000.00"), product2.price);
 	}
+	
+	@Test
+	public void testBatchCreateProducts() throws Exception {
+		assertModelCount(Product.class, 5, new CallBack() {
+			@Override
+            public void run() {
+				List<Product> products = FactoryBoy.batchCreate(5, Product.class);
+				assertEquals(5, products.size());
+			}
+		});
+	}
+	
 }

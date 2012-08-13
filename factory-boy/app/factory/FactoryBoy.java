@@ -1,6 +1,7 @@
 package factory;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,12 +165,52 @@ public class FactoryBoy {
 	    return t;
     }
 	
+	/*
+	// TODO
 	public static <T extends GenericModel> List<T> batchCreate(int size, Class<T> clazz) {
-		
 	    return null;
     }
+	*/
 	
 	public static <T extends GenericModel> List<T> batchCreate(int size, Class<T> clazz, SequenceCallBack<T> sequenceCallBack) {
-	    return null;
+		List<T> list = batchBuild(size, clazz, sequenceCallBack);
+		for (T t : list) {
+	        t.save();
+        }
+		return list;
+	}
+	
+	public static <T extends GenericModel> List<T> batchBuild(int size, Class<T> clazz, SequenceCallBack<T> sequenceCallBack) {
+	    List<T> list = new ArrayList<T>();
+	    for (int i = 0; i < size; i++) {
+	    	T t = build(clazz);
+	    	sequenceCallBack.sequence(t, FactoryBoy.sequence(clazz));
+	    	list.add(t);
+	    }
+	    return list;
+    }
+
+	public static <T extends GenericModel> List<T> batchCreate(int size, Class<T> clazz, String name, SequenceCallBack<T> sequenceCallBack) {
+		List<T> list = batchBuild(size, clazz, name, sequenceCallBack);
+		for (T t : list) {
+	        t.save();
+        }
+		return list;
+	}
+	
+	public static <T extends GenericModel> List<T> batchBuild(int size, Class<T> clazz, String name, SequenceCallBack<T> sequenceCallBack) {
+	    List<T> list = new ArrayList<T>();
+	    for (int i = 0; i < size; i++) {
+	    	T t = build(clazz, name);
+	    	sequenceCallBack.sequence(t, FactoryBoy.sequence(clazz));
+	    	list.add(t);
+	    }
+	    return list;
+    }
+	
+	public static int sequence(Class<?> clazz) {
+		Class<? extends GenericModel> type = (Class<? extends GenericModel>)clazz;
+		ModelFactory<? extends GenericModel> modelFactory = findModelFactory(type);
+	    return modelFactory.sequence();
     }
 }

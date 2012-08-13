@@ -5,9 +5,6 @@ import static asserts.ModelAssert.assertDifference;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.persistence.criteria.Order;
-
-import model.UnUseModel;
 import models.Product;
 
 import org.junit.Before;
@@ -17,8 +14,7 @@ import play.test.UnitTest;
 import asserts.CallBack;
 import factory.BuildCallBack;
 import factory.FactoryBoy;
-import factory.OrderFactory;
-import factory.ProductFactory;
+import factory.SequenceCallBack;
 
 public class ProductTest extends UnitTest {
 	
@@ -27,16 +23,6 @@ public class ProductTest extends UnitTest {
 	@Before
 	public void setUp() {
 		FactoryBoy.init(Product.class);
-	}
-	
-	@Test(expected=RuntimeException.class)
-	public void testFindUnExistsModelFactory() {
-		FactoryBoy.findModelFactory(UnUseModel.class);
-	}
-	
-	@Test
-	public void testFindModelFactory() {
-		assertEquals(ProductFactory.class, FactoryBoy.findModelFactory(Product.class).getClass());
 	}
  
 	@Test
@@ -83,21 +69,6 @@ public class ProductTest extends UnitTest {
 		});
 	}
 	
-	/*
-	@Test
-	public void testModelFactorySequence() {
-		int orderSequence = FactoryBoy.sequence(Order.class);
-		int productSequence = ProductFactory.sequence();
-		assertEquals(productSequence, orderSequence);
-		
-		assertEquals(orderSequence + 1, OrderFactory.sequence());
-		
-		int orderSequence1 = OrderFactory.sequence();
-		int productSequence1 = ProductFactory.sequence();
-		assertEquals(productSequence1 + 1, orderSequence1);
-	}
-	*/
-	
 	@Test
 	public void testGetNamedProduct() throws Exception {
 		product = FactoryBoy.create(Product.class, "hhkb");
@@ -114,7 +85,14 @@ public class ProductTest extends UnitTest {
 		assertDifference(Product.class, 5, new CallBack() {
 			@Override
             public void run() {
-				List<Product> products = FactoryBoy.batchCreate(5, Product.class);
+				List<Product> products = FactoryBoy.batchCreate(5, Product.class, new SequenceCallBack<Product>() {
+					@Override
+                    public Product sequence(Product target, int seq) {
+						target.name = "Test Product " + seq;
+						target.price = BigDecimal.TEN.add(new BigDecimal(seq));
+	                    return target;
+                    }
+				});
 				assertEquals(5, products.size());
 			}
 		});

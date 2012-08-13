@@ -30,7 +30,7 @@ public class FactoryBoy {
         }
     }
 
-	public static <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
+	public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
 		ModelFactory<T> modelFactory = (ModelFactory<T>) modelFactoryCacheMap.get(clazz);
 		if (modelFactory != null) {
 			return modelFactory;
@@ -163,8 +163,9 @@ public class FactoryBoy {
 	    buildCallBack.build(t);
 	    return t;
     }
-
+	
 	public static <T extends GenericModel> List<T> batchCreate(int size, Class<T> clazz) {
+		
 	    return null;
     }
 	

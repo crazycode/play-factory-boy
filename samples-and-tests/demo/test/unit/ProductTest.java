@@ -5,6 +5,8 @@ import static asserts.ModelAssert.assertDifference;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.persistence.criteria.Order;
+
 import model.UnUseModel;
 import models.Product;
 
@@ -15,6 +17,7 @@ import play.test.UnitTest;
 import asserts.CallBack;
 import factory.BuildCallBack;
 import factory.FactoryBoy;
+import factory.OrderFactory;
 import factory.ProductFactory;
 
 public class ProductTest extends UnitTest {
@@ -79,6 +82,21 @@ public class ProductTest extends UnitTest {
             }
 		});
 	}
+	
+	/*
+	@Test
+	public void testModelFactorySequence() {
+		int orderSequence = FactoryBoy.sequence(Order.class);
+		int productSequence = ProductFactory.sequence();
+		assertEquals(productSequence, orderSequence);
+		
+		assertEquals(orderSequence + 1, OrderFactory.sequence());
+		
+		int orderSequence1 = OrderFactory.sequence();
+		int productSequence1 = ProductFactory.sequence();
+		assertEquals(productSequence1 + 1, orderSequence1);
+	}
+	*/
 	
 	@Test
 	public void testGetNamedProduct() throws Exception {

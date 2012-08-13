@@ -1,6 +1,6 @@
 package unit;
 
-import static asserts.ModelAssert.assertModelCount;
+import static asserts.ModelAssert.assertDifference;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -38,7 +38,7 @@ public class ProductTest extends UnitTest {
  
 	@Test
 	public void testCreateProduct() throws Exception {
-		assertModelCount(Product.class, 1, new CallBack() {
+		assertDifference(Product.class, 1, new CallBack() {
 			@Override
             public void run() {
 				product = FactoryBoy.build(Product.class);
@@ -72,7 +72,7 @@ public class ProductTest extends UnitTest {
 	@Test
 	public void testDeleteProduct() throws Exception {
 		product = FactoryBoy.create(Product.class);
-		assertModelCount(Product.class, -1, new CallBack() {
+		assertDifference(Product.class, -1, new CallBack() {
 			@Override
             public void run() {
 				product.delete();	            
@@ -93,7 +93,7 @@ public class ProductTest extends UnitTest {
 	
 	@Test
 	public void testBatchCreateProducts() throws Exception {
-		assertModelCount(Product.class, 5, new CallBack() {
+		assertDifference(Product.class, 5, new CallBack() {
 			@Override
             public void run() {
 				List<Product> products = FactoryBoy.batchCreate(5, Product.class);

@@ -6,4 +6,6 @@ public abstract class ModelFactory<T extends GenericModel> {
 
 	public abstract T define();
 	
+	
+	
 }

@@ -1,7 +1,9 @@
 package factory;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -14,6 +16,8 @@ import factory.annotation.Factory;
 
 public class FactoryBoy {
 
+	protected static Map<Class<?>, ModelFactory<?>> modelFactoryCacheMap = new HashMap<Class<?>, ModelFactory<?>>();
+	
 	public static <T extends GenericModel> void init(Class<T>... clazzes) {
 		Fixtures.delete(clazzes);
 		
@@ -27,10 +31,16 @@ public class FactoryBoy {
     }
 
 	public static <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
+		ModelFactory<T> modelFactory = (ModelFactory<T>) modelFactoryCacheMap.get(clazz);
+		if (modelFactory != null) {
+			return modelFactory;
+		}
 		String clazzFullName = clazz.getName();
 		String modelFactoryName = clazzFullName.replaceAll("^models\\.", "factory.") + "Factory";
 	    try {
-	        return (ModelFactory<T>)Class.forName(modelFactoryName).newInstance();
+	        modelFactory = (ModelFactory<T>)Class.forName(modelFactoryName).newInstance();
+	        modelFactoryCacheMap.put(clazz, modelFactory);
+	        return modelFactory;
         } catch (Exception e) {
 	        // Don't need throw the exception.
         }

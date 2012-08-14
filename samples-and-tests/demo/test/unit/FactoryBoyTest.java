@@ -4,13 +4,19 @@ import model.UnUseModel;
 import models.Order;
 import models.Product;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
 import factory.FactoryBoy;
 import factory.ProductFactory;
 
-public class FactoryBotTest extends UnitTest {
+public class FactoryBoyTest extends UnitTest {
+	
+	@Before
+	public void setUp() {
+		FactoryBoy.delete(Order.class, Product.class);
+	}
 	
 	@Test
 	public void testFactoryBoySequence() {

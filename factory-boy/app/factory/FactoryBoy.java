@@ -19,9 +19,14 @@ public class FactoryBoy {
 
 	protected static Map<Class<?>, ModelFactory<?>> modelFactoryCacheMap = new HashMap<Class<?>, ModelFactory<?>>();
 	
-	public static <T extends GenericModel> void delete(Class<T>... clazzes) {
-		Fixtures.delete(clazzes);
-		
+	protected static Map<Class<?>, Integer> modelSequenceMap = new HashMap<Class<?>, Integer>();
+	
+	protected static void reset() {
+		modelSequenceMap.clear();
+	}
+	
+	public static void delete(Class<? extends GenericModel>... clazzes) {
+		reset();
         for (Class<? extends GenericModel> type : clazzes) {
             try {
                 Model.Manager.factoryFor(type).deleteAll();
@@ -208,9 +213,12 @@ public class FactoryBoy {
 	    return list;
     }
 	
-	public static int sequence(Class<?> clazz) {
-		Class<? extends GenericModel> type = (Class<? extends GenericModel>)clazz;
-		ModelFactory<? extends GenericModel> modelFactory = findModelFactory(type);
-	    return modelFactory.sequence();
+	public static synchronized int sequence(Class<?> clazz) {
+		Integer seq = modelSequenceMap.get(clazz);
+		if (seq == null) {
+			seq = 0;
+		}
+		modelSequenceMap.put(clazz, ++seq);
+	    return seq;
     }
 }

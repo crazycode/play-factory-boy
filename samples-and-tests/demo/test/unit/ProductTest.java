@@ -22,7 +22,7 @@ public class ProductTest extends UnitTest {
 	
 	@Before
 	public void setUp() {
-		FactoryBoy.init(Product.class);
+		FactoryBoy.delete(Product.class);
 	}
  
 	@Test

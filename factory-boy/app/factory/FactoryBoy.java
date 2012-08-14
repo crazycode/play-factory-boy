@@ -19,7 +19,7 @@ public class FactoryBoy {
 
 	protected static Map<Class<?>, ModelFactory<?>> modelFactoryCacheMap = new HashMap<Class<?>, ModelFactory<?>>();
 	
-	public static <T extends GenericModel> void init(Class<T>... clazzes) {
+	public static <T extends GenericModel> void delete(Class<T>... clazzes) {
 		Fixtures.delete(clazzes);
 		
         for (Class<? extends GenericModel> type : clazzes) {
@@ -30,7 +30,7 @@ public class FactoryBoy {
             }
         }
     }
-
+	
 	public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
 		ModelFactory<T> modelFactory = (ModelFactory<T>) modelFactoryCacheMap.get(clazz);
 		if (modelFactory != null) {

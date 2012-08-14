@@ -8,5 +8,5 @@ import play.db.jpa.GenericModel;
  * @param <T>
  */
 public interface BuildCallBack<T extends GenericModel> {
-	T build(T target);
+	void build(T target);
 }

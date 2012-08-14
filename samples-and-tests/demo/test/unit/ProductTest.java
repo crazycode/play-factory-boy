@@ -48,9 +48,8 @@ public class ProductTest extends UnitTest {
 	public void testFindByName() {
 		Product product = FactoryBoy.create(Product.class, new BuildCallBack<Product>() {
 			@Override
-            public Product build(Product target) {
+            public void build(Product target) {
 				target.name = "HHKB";
-	            return target;
             }
 		});
 		
@@ -87,10 +86,9 @@ public class ProductTest extends UnitTest {
             public void run() {
 				List<Product> products = FactoryBoy.batchCreate(5, Product.class, new SequenceCallBack<Product>() {
 					@Override
-                    public Product sequence(Product target, int seq) {
+                    public void sequence(Product target, int seq) {
 						target.name = "Test Product " + seq;
 						target.price = BigDecimal.TEN.add(new BigDecimal(seq));
-	                    return target;
                     }
 				});
 				assertEquals(5, products.size());

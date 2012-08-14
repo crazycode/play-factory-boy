@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
+import factory.BuildCallBack;
 import factory.FactoryBoy;
 import factory.ProductFactory;
 
@@ -40,5 +41,27 @@ public class FactoryBoyTest extends UnitTest {
 	public void testFindModelFactory() {
 		assertEquals(ProductFactory.class, FactoryBoy.findModelFactory(Product.class).getClass());
 	}
-	
+
+	@Test
+	public void testLazyDelete() {
+		FactoryBoy.create(Product.class);
+		assertEquals(1l, Product.count());
+		FactoryBoy.lazyDelete();
+		
+		// when lazy delete, the count of all model will not be changed.
+		assertEquals(1l, Product.count());
+		
+		// but after to create any model, it will delete the old model object.
+		FactoryBoy.create(Product.class);
+		assertEquals(1l, Product.count());
+		
+		FactoryBoy.create(Product.class, new BuildCallBack<Product>() {
+			@Override
+            public void build(Product target) {
+				target.name = "New Product";
+            }
+		});
+		
+		assertEquals(2l, Product.count());
+	}
 }

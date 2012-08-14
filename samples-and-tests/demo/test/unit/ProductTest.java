@@ -41,7 +41,8 @@ public class ProductTest extends UnitTest {
 		product = FactoryBoy.create(Product.class);
 		product.name = "New Name";
 		product.save();
-		assertTrue(true);
+		Product p = Product.findById(product.id);
+		assertEquals("New Name", p.name);
 	}
 	
 	@Test

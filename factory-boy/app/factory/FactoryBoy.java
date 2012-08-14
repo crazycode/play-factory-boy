@@ -3,15 +3,16 @@ package factory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
-import play.test.Fixtures;
 import factory.annotation.Factory;
 
 
@@ -21,8 +22,22 @@ public class FactoryBoy {
 	
 	protected static Map<Class<?>, Integer> modelSequenceMap = new HashMap<Class<?>, Integer>();
 	
+	protected static Set<Class<?>> modelDeletedSet = new HashSet<Class<?>>();
+	
 	protected static void reset() {
 		modelSequenceMap.clear();
+		modelDeletedSet.clear();
+	}
+	
+	public static void lazyDelete() {
+		reset();
+	}
+	
+	protected static synchronized void checkOrDeleteModel(Class<? extends GenericModel> clazz) {
+		if (!modelDeletedSet.contains(clazz)) {
+			Model.Manager.factoryFor(clazz).deleteAll();
+			modelDeletedSet.add(clazz);
+		}
 	}
 	
 	public static void delete(Class<? extends GenericModel>... clazzes) {
@@ -37,6 +52,9 @@ public class FactoryBoy {
     }
 	
 	public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
+		// If the Model has not delete after lazyDelete, delete it all.
+		checkOrDeleteModel(clazz);
+		
 		ModelFactory<T> modelFactory = (ModelFactory<T>) modelFactoryCacheMap.get(clazz);
 		if (modelFactory != null) {
 			return modelFactory;

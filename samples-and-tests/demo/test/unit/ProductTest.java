@@ -1,6 +1,6 @@
 package unit;
 
-import static asserts.ModelAssert.assertDifference;
+import static factory.asserts.ModelAssert.assertDifference;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,10 +11,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
-import asserts.CallBack;
 import factory.BuildCallBack;
 import factory.FactoryBoy;
 import factory.SequenceCallBack;
+import factory.asserts.CallBack;
 
 public class ProductTest extends UnitTest {
 	
@@ -22,11 +22,14 @@ public class ProductTest extends UnitTest {
 	
 	@Before
 	public void setUp() {
-		FactoryBoy.delete(Product.class);
+		//FactoryBoy.delete(Product.class);
+	    FactoryBoy.lazyDelete();
 	}
  
 	@Test
 	public void testCreateProduct() throws Exception {
+	    // when use assertDifference, DON'T use lazyDelete(), OR call a create() method at first.
+	    FactoryBoy.delete(Product.class); 
 		assertDifference(Product.class, 1, new CallBack() {
 			@Override
             public void run() {
@@ -82,6 +85,7 @@ public class ProductTest extends UnitTest {
 	
 	@Test
 	public void testBatchCreateProducts() throws Exception {
+	    FactoryBoy.delete(Product.class);
 		assertDifference(Product.class, 5, new CallBack() {
 			@Override
             public void run() {

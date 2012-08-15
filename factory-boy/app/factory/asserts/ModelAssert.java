@@ -1,4 +1,4 @@
-package asserts;
+package factory.asserts;
 
 import static org.junit.Assert.assertTrue;
 
@@ -13,7 +13,8 @@ public class ModelAssert {
 		long countBefore = (long)countMethod.invoke(clazz, new Object[]{});
 		callback.run();
 		long countAfter = (long)countMethod.invoke(clazz, new Object[]{});
-		assertTrue(String.format("Expect the %s's count changes %d, but was %d", clazz.getName(), expectDifference, (countAfter - countBefore)),
+		assertTrue(String.format("Expect the %s's count changes %d, but was %d(before:%d, after:%d)", clazz.getName(), expectDifference, 
+		        (countAfter - countBefore), countBefore, countAfter),
 				(expectDifference == (countAfter - countBefore)));
 	}
 }

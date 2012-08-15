@@ -23,13 +23,14 @@ public class FactoryBoyTest extends UnitTest {
 	public void testFactoryBoySequence() {
 		int orderSequence = FactoryBoy.sequence(Order.class);
 		int productSequence = FactoryBoy.sequence(Product.class);
-		assertEquals(productSequence, orderSequence);
+		int delta = orderSequence - productSequence;
+		assertEquals(productSequence + delta, orderSequence);
 		
 		assertEquals(orderSequence + 1, FactoryBoy.sequence(Order.class));
 		
 		int orderSequence1 = FactoryBoy.sequence(Order.class);
 		int productSequence1 = FactoryBoy.sequence(Product.class);
-		assertEquals(productSequence1 + 1, orderSequence1);
+		assertEquals(productSequence1 + delta + 1, orderSequence1);
 	}
 	
 	@Test(expected=RuntimeException.class)

@@ -7,9 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
@@ -22,41 +20,60 @@ public class FactoryBoy {
 	
 	protected static Map<Class<?>, Integer> modelSequenceMap = new HashMap<Class<?>, Integer>();
 	
-	protected static Set<Class<?>> modelDeletedSet = new HashSet<Class<?>>();
+	protected static ThreadLocal<Set<Class<?>>> _threadLocalModelDeletedSet = new ThreadLocal<Set<Class<?>>>();
+	
+	protected static synchronized Set<Class<?>> modelDeletedSet() {
+	    Set<Class<?>> modelDeletedSet = _threadLocalModelDeletedSet.get();
+	    if (modelDeletedSet == null) {
+	        modelDeletedSet= new HashSet<Class<?>>();
+	        _threadLocalModelDeletedSet.set(modelDeletedSet);
+	    }
+	    return modelDeletedSet;
+	}
 	
 	protected static void reset() {
-		modelSequenceMap.clear();
-		modelDeletedSet.clear();
+		_threadLocalModelDeletedSet.set(null);
 	}
 	
 	public static void lazyDelete() {
 		reset();
 	}
 	
-	protected static synchronized void checkOrDeleteModel(Class<? extends GenericModel> clazz) {
-		if (!modelDeletedSet.contains(clazz)) {
-			Model.Manager.factoryFor(clazz).deleteAll();
-			modelDeletedSet.add(clazz);
+	protected static synchronized void checkOrDeleteModel(Class<? extends GenericModel> clazz, ModelFactory<? extends GenericModel> modelFactory) {
+	    Class<? extends GenericModel>[] relationModels = modelFactory.relationModels();
+	    if (relationModels != null) {
+	        for (Class<? extends GenericModel> r : relationModels) {
+                if (!modelDeletedSet().contains(r)) {
+                    deleteModelData(r);
+                }
+            }
+	    }
+		if (!modelDeletedSet().contains(clazz)) {
+			deleteModelData(clazz);
 		}
 	}
 	
 	public static void delete(Class<? extends GenericModel>... clazzes) {
 		reset();
         for (Class<? extends GenericModel> type : clazzes) {
-            try {
-                Model.Manager.factoryFor(type).deleteAll();
-            } catch(Exception e) {
-                Logger.error(e, "While deleting " + type + " instances");
-            }
+            deleteModelData(type);
+        }
+    }
+
+    protected static void deleteModelData(Class<? extends GenericModel> type) {
+        try {
+            Model.Manager.factoryFor(type).deleteAll();
+            modelDeletedSet().add(type);
+        } catch(Exception e) {
+            Logger.error(e, "While deleting " + type + " instances");
         }
     }
 	
 	public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(Class<T> clazz) {
 		// If the Model has not delete after lazyDelete, delete it all.
-		checkOrDeleteModel(clazz);
-		
 		ModelFactory<T> modelFactory = (ModelFactory<T>) modelFactoryCacheMap.get(clazz);
 		if (modelFactory != null) {
+	        checkOrDeleteModel(clazz, modelFactory);
 			return modelFactory;
 		}
 		String clazzFullName = clazz.getName();
@@ -64,6 +81,7 @@ public class FactoryBoy {
 	    try {
 	        modelFactory = (ModelFactory<T>)Class.forName(modelFactoryName).newInstance();
 	        modelFactoryCacheMap.put(clazz, modelFactory);
+	        checkOrDeleteModel(clazz, modelFactory);
 	        return modelFactory;
         } catch (Exception e) {
 	        // Don't need throw the exception.

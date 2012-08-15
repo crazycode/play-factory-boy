@@ -8,4 +8,5 @@ test-result/
 .project
 .settings/
 eclipse/
+cobertura.ser
 samples-and-tests/demo/modules/

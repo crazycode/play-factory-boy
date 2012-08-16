@@ -152,17 +152,18 @@ public class FactoryBoy {
 	        if (method == null) {
 	        	return t;
 	        }
+	        // process factory's base define method.
 	        Factory factory = method.getAnnotation(Factory.class);
 	        if (factory != null && StringUtils.isNotEmpty(factory.base())) {
 	        	try {
 	                Method baseMethod = getModelDefineMethod(clazz, factory.base(), modelFactory);
-	                t = (T) baseMethod.invoke(modelFactory, t);
+	                baseMethod.invoke(modelFactory, t);
                 } catch (Exception e) {
 	                e.printStackTrace();
                 }
 	        }
 	        
-	        t = (T) method.invoke(modelFactory, t);
+	        method.invoke(modelFactory, t);
         } catch (Exception e) {
 	        e.printStackTrace();
         }

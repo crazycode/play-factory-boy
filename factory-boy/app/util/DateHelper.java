@@ -50,7 +50,7 @@ public final class DateHelper {
     public static Date beforeMinuts(Date date, int minuts) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        cal.roll(Calendar.MINUTE, minuts);
+        cal.add(Calendar.MINUTE, - minuts);
         return cal.getTime();
     }
 
@@ -71,7 +71,7 @@ public final class DateHelper {
     public static Date beforeHours(Date date, int hours) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        cal.roll(Calendar.HOUR, hours);
+        cal.add(Calendar.HOUR, - hours);
         return cal.getTime();
     }
 
@@ -94,7 +94,7 @@ public final class DateHelper {
     public static Date beforeDays(Date date, int days) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        cal.roll(Calendar.DAY_OF_YEAR, days);
+        cal.add(Calendar.DAY_OF_YEAR, - days);
         return cal.getTime();
     }
 }

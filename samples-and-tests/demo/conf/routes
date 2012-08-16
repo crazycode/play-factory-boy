@@ -3,7 +3,10 @@
 # ~~~~
 
 # Home page
-GET     /                                       Application.index
+# GET     /                                       Application.index
+
+# Import CRUD routes
+*      /              module:crud
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

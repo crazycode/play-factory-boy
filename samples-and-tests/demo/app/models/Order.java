@@ -14,11 +14,11 @@ import play.db.jpa.Model;
 @Table(name = "orders")
 public class Order extends Model {
 
-	public String consignee;
-	
-	public String address;
+    public String consignee;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
+    public String address;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     @OrderBy("id")
-	public List<OrderItem> orderItems;
+    public List<OrderItem> orderItems;
 }

@@ -8,10 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
-
-import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
 import factory.annotation.Factory;
@@ -65,12 +62,14 @@ public class FactoryBoy {
         }
     }
 
-    protected static void deleteModelData(Class<? extends GenericModel> type) {
+    protected static <T extends GenericModel> void deleteModelData(Class<T> type) {
         try {
             Model.Manager.factoryFor(type).deleteAll();
             modelDeletedSet().add(type);
         } catch (Exception e) {
-            Logger.error(e, "While deleting " + type + " instances");
+            // Logger.error(e, "While deleting " + type + " instances");
+            ModelFactory<T> modelFactory = findModelFactory(type);
+            modelFactory.deleteAll();
         }
     }
 

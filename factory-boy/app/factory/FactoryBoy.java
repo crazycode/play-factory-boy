@@ -8,7 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
+
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
 import factory.annotation.Factory;
@@ -41,12 +43,14 @@ public class FactoryBoy {
     protected static synchronized void checkOrDeleteModel(
             Class<? extends GenericModel> clazz,
             ModelFactory<? extends GenericModel> modelFactory) {
-        Class<? extends GenericModel>[] relationModels = modelFactory
-                .relationModels();
+        Class<?>[] relationModels = modelFactory.relationModels();
         if (relationModels != null) {
-            for (Class<? extends GenericModel> r : relationModels) {
-                if (!modelDeletedSet().contains(r)) {
-                    deleteModelData(r);
+            for (Class<?> r : relationModels) {
+                if (r.isAssignableFrom(GenericModel.class)) {
+                    Class<? extends GenericModel> gm = (Class<? extends GenericModel>) r;
+                    if (!modelDeletedSet().contains(gm)) {
+                        deleteModelData(gm);
+                    }
                 }
             }
         }

@@ -90,7 +90,10 @@ public class FactoryBoy {
             }
         } catch (Exception e) {
             // Logger.error(e, "While deleting " + type + " instances");
-            deleteAll(type);
+            if (!modelDeletedSet().contains(type)) {
+                deleteAll(type);
+                modelDeletedSet().add(type);
+            }
         }
     }
 

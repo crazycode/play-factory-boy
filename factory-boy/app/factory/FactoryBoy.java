@@ -220,11 +220,8 @@ public class FactoryBoy {
 
         T t = modelFactory.define();
 
+        Method method = getModelDefineMethod(clazz, name, modelFactory);
         try {
-            Method method = getModelDefineMethod(clazz, name, modelFactory);
-            if (method == null) {
-                return t;
-            }
             // process factory's base define method.
             Factory factory = method.getAnnotation(Factory.class);
             if (factory != null && StringUtils.isNotEmpty(factory.base())) {
@@ -270,10 +267,11 @@ public class FactoryBoy {
 
     private static <T extends GenericModel> Method getModelDefineMethod(
                     Class<T> clazz, String name, ModelFactory<T> modelFactory)
-                    throws NoSuchMethodException {
+    {
 
         Method[] allMethods = modelFactory.getClass().getMethods();
 
+        System.out.println("find " + name + " method with @factory");
         for (Method method : allMethods) {
             Factory factory = method.getAnnotation(Factory.class);
             if (factory != null) {
@@ -283,10 +281,11 @@ public class FactoryBoy {
                 }
             }
         }
-        throw new NoSuchMethodException(
-                        "Please define a method with annotation @Factory(name=\""
-                                        + name + "\") in "
-                                        + modelFactory.getClass().getName());
+        throw new RuntimeException(
+                        "Can't find any method with @Factory(name=" + name
+                                        + " method at class "
+                                        + modelFactory.getClass().getName()
+                                        + ", Please define it.");
     }
 
     /**

@@ -35,14 +35,19 @@ public class FactoryBoyTest extends UnitTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testFindUnExistsModelFactory() {
+    public void testFindUnExistsModel() {
         FactoryBoy.findModelFactory(UnUseModel.class);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testCreateNoDefNameModel() {
+        FactoryBoy.create(Product.class, "undefined");
     }
 
     @Test
     public void testFindModelFactory() {
         assertEquals(ProductFactory.class,
-                FactoryBoy.findModelFactory(Product.class).getClass());
+                        FactoryBoy.findModelFactory(Product.class).getClass());
     }
 
     @Test

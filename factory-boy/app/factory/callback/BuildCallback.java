@@ -1,4 +1,4 @@
-package factory;
+package factory.callback;
 
 import play.db.jpa.GenericModel;
 

@@ -16,6 +16,7 @@ import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
 import play.test.Fixtures;
 import factory.annotation.Factory;
+import factory.callback.BuildCallback;
 
 public class FactoryBoy {
 
@@ -271,7 +272,6 @@ public class FactoryBoy {
 
         Method[] allMethods = modelFactory.getClass().getMethods();
 
-        System.out.println("find " + name + " method with @factory");
         for (Method method : allMethods) {
             Factory factory = method.getAnnotation(Factory.class);
             if (factory != null) {

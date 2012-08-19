@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import play.test.FunctionalTest;
 import factory.FactoryBoy;
-import factory.SequenceCallback;
+import factory.callback.SequenceCallback;
 
 public class ProductsTest extends FunctionalTest {
 

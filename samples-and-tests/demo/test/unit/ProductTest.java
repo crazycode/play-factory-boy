@@ -11,10 +11,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
-import factory.BuildCallback;
 import factory.FactoryBoy;
-import factory.SequenceCallback;
 import factory.asserts.Callback;
+import factory.callback.BuildCallback;
+import factory.callback.SequenceCallback;
 
 public class ProductTest extends UnitTest {
 

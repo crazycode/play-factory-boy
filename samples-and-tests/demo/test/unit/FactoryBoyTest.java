@@ -9,9 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
-import factory.BuildCallback;
 import factory.FactoryBoy;
 import factory.ProductFactory;
+import factory.callback.BuildCallback;
 
 public class FactoryBoyTest extends UnitTest {
 

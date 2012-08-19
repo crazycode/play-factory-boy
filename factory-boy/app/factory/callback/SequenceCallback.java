@@ -1,5 +1,6 @@
-package factory;
+package factory.callback;
 
+import factory.FactoryBoy;
 import play.db.jpa.GenericModel;
 
 public abstract class SequenceCallback<T extends GenericModel> implements

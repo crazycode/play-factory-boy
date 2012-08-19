@@ -1,5 +1,5 @@
 package factory.asserts;
 
-public interface CallBack {
+public interface Callback {
 	void run();
 }

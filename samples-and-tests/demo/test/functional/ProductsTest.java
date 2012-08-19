@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import play.test.FunctionalTest;
 import factory.FactoryBoy;
-import factory.SequenceCallBack;
+import factory.SequenceCallback;
 
 public class ProductsTest extends FunctionalTest {
 
@@ -19,7 +19,7 @@ public class ProductsTest extends FunctionalTest {
     @Test
     public void testList() {
         FactoryBoy.batchCreate(5, Product.class,
-                new SequenceCallBack<Product>() {
+                new SequenceCallback<Product>() {
                     public void sequence(Product target, int seq) {
 
                     }

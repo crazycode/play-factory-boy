@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
-import factory.BuildCallBack;
+import factory.BuildCallback;
 import factory.FactoryBoy;
 
 public class FactoryBoyDeleteTest extends UnitTest {
@@ -20,7 +20,7 @@ public class FactoryBoyDeleteTest extends UnitTest {
 
         final Category parent = FactoryBoy.create(Category.class);
         FactoryBoy.batchCreate(5, Category.class,
-                        new BuildCallBack<Category>() {
+                        new BuildCallback<Category>() {
                             @Override
                             public void build(Category category) {
                                 category.parent = parent;
@@ -33,7 +33,7 @@ public class FactoryBoyDeleteTest extends UnitTest {
         parent.save();
 
         FactoryBoy.create(Product.class,
-                        new BuildCallBack<Product>() {
+                        new BuildCallback<Product>() {
                             @Override
                             public void build(Product target) {
                                 target.categories = new HashSet<Category>();

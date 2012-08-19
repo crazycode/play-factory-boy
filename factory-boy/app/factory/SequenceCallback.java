@@ -2,8 +2,8 @@ package factory;
 
 import play.db.jpa.GenericModel;
 
-public abstract class SequenceCallBack<T extends GenericModel> implements
-        BuildCallBack<T> {
+public abstract class SequenceCallback<T extends GenericModel> implements
+        BuildCallback<T> {
 
     public abstract void sequence(T target, int seq);
 

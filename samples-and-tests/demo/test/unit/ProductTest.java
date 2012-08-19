@@ -11,10 +11,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import play.test.UnitTest;
-import factory.BuildCallBack;
+import factory.BuildCallback;
 import factory.FactoryBoy;
-import factory.SequenceCallBack;
-import factory.asserts.CallBack;
+import factory.SequenceCallback;
+import factory.asserts.Callback;
 
 public class ProductTest extends UnitTest {
 	
@@ -30,7 +30,7 @@ public class ProductTest extends UnitTest {
 	public void testCreateProduct() throws Exception {
 	    // when use assertDifference, DON'T use lazyDelete(), OR call a create() method at first.
 	    FactoryBoy.delete(Product.class); 
-		assertDifference(Product.class, 1, new CallBack() {
+		assertDifference(Product.class, 1, new Callback() {
 			@Override
             public void run() {
 				product = FactoryBoy.build(Product.class);
@@ -50,7 +50,7 @@ public class ProductTest extends UnitTest {
 	
 	@Test
 	public void testFindByName() {
-		Product product = FactoryBoy.create(Product.class, new BuildCallBack<Product>() {
+		Product product = FactoryBoy.create(Product.class, new BuildCallback<Product>() {
 			@Override
             public void build(Product target) {
 				target.name = "HHKB";
@@ -64,7 +64,7 @@ public class ProductTest extends UnitTest {
 	@Test
 	public void testDeleteProduct() throws Exception {
 		product = FactoryBoy.create(Product.class);
-		assertDifference(Product.class, -1, new CallBack() {
+		assertDifference(Product.class, -1, new Callback() {
 			@Override
             public void run() {
 				product.delete();	            
@@ -86,10 +86,10 @@ public class ProductTest extends UnitTest {
 	@Test
 	public void testBatchCreateProducts() throws Exception {
 	    FactoryBoy.delete(Product.class);
-		assertDifference(Product.class, 5, new CallBack() {
+		assertDifference(Product.class, 5, new Callback() {
 			@Override
             public void run() {
-				List<Product> products = FactoryBoy.batchCreate(5, Product.class, new SequenceCallBack<Product>() {
+				List<Product> products = FactoryBoy.batchCreate(5, Product.class, new SequenceCallback<Product>() {
 					@Override
                     public void sequence(Product target, int seq) {
 						target.name = "Test Product " + seq;

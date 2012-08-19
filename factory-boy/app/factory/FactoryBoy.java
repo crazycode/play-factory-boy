@@ -180,15 +180,15 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> T create(Class<T> clazz,
-                    String name, BuildCallBack<T> buildCallBack) {
-        T t = build(clazz, name, buildCallBack);
+                    String name, BuildCallback<T> buildCallback) {
+        T t = build(clazz, name, buildCallback);
         t.save();
         return t;
     }
 
     public static <T extends GenericModel> T create(Class<T> clazz,
-                    BuildCallBack<T> buildCallBack) {
-        T t = build(clazz, buildCallBack);
+                    BuildCallback<T> buildCallback) {
+        T t = build(clazz, buildCallback);
         t.save();
         return t;
     }
@@ -297,16 +297,16 @@ public class FactoryBoy {
      * @return
      */
     public static <T extends GenericModel> T build(Class<T> clazz, String name,
-                    BuildCallBack<T> buildCallBack) {
+                    BuildCallback<T> buildCallback) {
         T t = build(clazz, name);
-        buildCallBack.build(t);
+        buildCallback.build(t);
         return t;
     }
 
     public static <T extends GenericModel> T build(Class<T> clazz,
-                    BuildCallBack<T> buildCallBack) {
+                    BuildCallback<T> buildCallback) {
         T t = build(clazz);
-        buildCallBack.build(t);
+        buildCallback.build(t);
         return t;
     }
 
@@ -316,8 +316,8 @@ public class FactoryBoy {
      */
 
     public static <T extends GenericModel> List<T> batchCreate(int size,
-                    Class<T> clazz, BuildCallBack<T> sequenceCallBack) {
-        List<T> list = batchBuild(size, clazz, sequenceCallBack);
+                    Class<T> clazz, BuildCallback<T> sequenceCallback) {
+        List<T> list = batchBuild(size, clazz, sequenceCallback);
         for (T t : list) {
             t.save();
         }
@@ -325,19 +325,19 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> List<T> batchBuild(int size,
-                    Class<T> clazz, BuildCallBack<T> buildCallBack) {
+                    Class<T> clazz, BuildCallback<T> buildCallback) {
         List<T> list = new ArrayList<T>();
         for (int i = 0; i < size; i++) {
             T t = build(clazz);
-            buildCallBack.build(t);
+            buildCallback.build(t);
             list.add(t);
         }
         return list;
     }
 
     public static <T extends GenericModel> List<T> batchCreate(int size,
-                    Class<T> clazz, String name, BuildCallBack<T> buildCallBack) {
-        List<T> list = batchBuild(size, clazz, name, buildCallBack);
+                    Class<T> clazz, String name, BuildCallback<T> buildCallback) {
+        List<T> list = batchBuild(size, clazz, name, buildCallback);
         for (T t : list) {
             t.save();
         }
@@ -345,11 +345,11 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> List<T> batchBuild(int size,
-                    Class<T> clazz, String name, BuildCallBack<T> buildCallBack) {
+                    Class<T> clazz, String name, BuildCallback<T> buildCallback) {
         List<T> list = new ArrayList<T>();
         for (int i = 0; i < size; i++) {
             T t = build(clazz, name);
-            buildCallBack.build(t);
+            buildCallback.build(t);
             list.add(t);
         }
         return list;

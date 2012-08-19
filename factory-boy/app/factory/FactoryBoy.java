@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
+import play.test.Fixtures;
 import factory.annotation.Factory;
 
 public class FactoryBoy {
@@ -37,8 +38,31 @@ public class FactoryBoy {
         _threadLocalModelDeletedSet.set(null);
     }
 
+    /**
+     * Only delete the Model when first call create(...) method.
+     */
     public static void lazyDelete() {
         reset();
+    }
+
+    /**
+     * Deletes the specified Models.
+     * 
+     * @param clazzes
+     */
+    public static void delete(Class<? extends GenericModel>... clazzes) {
+        reset();
+        for (Class<? extends GenericModel> type : clazzes) {
+            deleteModelData(type);
+        }
+    }
+
+    /**
+     * Delete all will call the Fixtures.deleteDatabase()
+     */
+    public static void deleteAll() {
+        reset();
+        Fixtures.deleteDatabase();
     }
 
     protected static synchronized void checkOrDeleteModel(
@@ -55,13 +79,6 @@ public class FactoryBoy {
             }
         }
         deleteModelData(clazz);
-    }
-
-    public static void delete(Class<? extends GenericModel>... clazzes) {
-        reset();
-        for (Class<? extends GenericModel> type : clazzes) {
-            deleteModelData(type);
-        }
     }
 
     protected static <T extends GenericModel> void deleteModelData(Class<T> type) {

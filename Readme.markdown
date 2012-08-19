@@ -115,6 +115,18 @@ FactoryBoy提供了多种方式进行测试数据的建立：
                             }
                         });
 
+### build方法
+以上create方法均有对应的build方法版本，如：
+
+    Product product = FactoryBoy.build(Product.class);
+
+    Product product = FactoryBoy.build(Product.class, "hhkb");
+
+    Product product = FactoryBoy.batchBuild(5, Product.class);
+
+build方法与create方法的区别是产生的对象没有保存到数据库。
+
+通过build方法，可以快速生成纯POJO对象，用于辅助测试。
 
 ## 定义Model Factory
 

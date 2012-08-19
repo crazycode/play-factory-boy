@@ -33,4 +33,13 @@ public class ProductFactory extends ModelFactory<Product> {
     public void defineRandomProduct(Product product) {
         product.name = "Product " + FactoryBoy.sequence(Product.class);
     }
+
+    @Override
+    public void delete(Product t) {
+        if (t.categories != null && t.categories.size() > 0) {
+            t.categories.clear();
+            t.save();
+        }
+        t.delete();
+    }
 }

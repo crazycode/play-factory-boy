@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import play.Logger;
 import play.db.jpa.GenericModel;
 import play.db.jpa.Model;
 import factory.annotation.Factory;
@@ -41,22 +42,19 @@ public class FactoryBoy {
     }
 
     protected static synchronized void checkOrDeleteModel(
-            Class<? extends GenericModel> clazz,
-            ModelFactory<? extends GenericModel> modelFactory) {
+                    Class<? extends GenericModel> clazz,
+                    ModelFactory<? extends GenericModel> modelFactory) {
+
         Class<?>[] relationModels = modelFactory.relationModels();
         if (relationModels != null) {
             for (Class<?> r : relationModels) {
-                if (r.isAssignableFrom(GenericModel.class)) {
+                if (GenericModel.class.isAssignableFrom(r)) {
                     Class<? extends GenericModel> gm = (Class<? extends GenericModel>) r;
-                    if (!modelDeletedSet().contains(gm)) {
-                        deleteModelData(gm);
-                    }
+                    deleteModelData(gm);
                 }
             }
         }
-        if (!modelDeletedSet().contains(clazz)) {
-            deleteModelData(clazz);
-        }
+        deleteModelData(clazz);
     }
 
     public static void delete(Class<? extends GenericModel>... clazzes) {
@@ -68,32 +66,70 @@ public class FactoryBoy {
 
     protected static <T extends GenericModel> void deleteModelData(Class<T> type) {
         try {
-            Model.Manager.factoryFor(type).deleteAll();
-            modelDeletedSet().add(type);
+            if (!modelDeletedSet().contains(type)) {
+                Model.Manager.factoryFor(type).deleteAll();
+                modelDeletedSet().add(type);
+            }
         } catch (Exception e) {
-            // Logger.error(e, "While deleting " + type + " instances");
-            ModelFactory<T> modelFactory = findModelFactory(type);
-            modelFactory.deleteAll();
+            Logger.error(e, "While deleting " + type + " instances");
+
+            deleteAll(type);
+        }
+    }
+
+    /**
+     * If T.deleteAll() failed, FactoryBoy will call this deleteAll().
+     * 
+     * @param t
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    protected static <T extends GenericModel> void deleteAll(Class<T> type) {
+        ModelFactory<T> modelFactory = findModelFactory(type);
+        Logger.info("Try Delete all %s item.", type.getName());
+
+        Method deleteMethod = null;
+        // check the delete(T) had been declared at the concrete ModelFactory
+        try {
+            deleteMethod = modelFactory.getClass().getMethod("delete",
+                            type);
+        } catch (Exception e) {
+            throw new RuntimeException("Delete " + type.getName()
+                            + " Failed! Please define delete("
+                            + type.getName() + ") at the class "
+                            + modelFactory.getClass().getName() + ".");
+        }
+
+        List<T> all;
+        try {
+            Method findAllMethod = type.getMethod("findAll", new Class<?>[] {});
+            all = (List<T>) findAllMethod.invoke(type, new Object[] {});
+            for (T t : all) {
+                deleteMethod.invoke(modelFactory, t);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(
-            Class<T> clazz) {
+                    Class<T> clazz) {
         // If the Model has not delete after lazyDelete, delete it all.
         ModelFactory<T> modelFactory = (ModelFactory<T>) modelFactoryCacheMap
-                .get(clazz);
+                        .get(clazz);
         if (modelFactory != null) {
-            checkOrDeleteModel(clazz, modelFactory);
             return modelFactory;
         }
         String clazzFullName = clazz.getName();
         String modelFactoryName = clazzFullName.replaceAll("^models\\.",
-                "factory.") + "Factory";
+                        "factory.") + "Factory";
         try {
             modelFactory = (ModelFactory<T>) Class.forName(modelFactoryName)
-                    .newInstance();
+                            .newInstance();
             modelFactoryCacheMap.put(clazz, modelFactory);
-            checkOrDeleteModel(clazz, modelFactory);
             return modelFactory;
         } catch (Exception e) {
             // Don't need throw the exception.
@@ -127,14 +163,14 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> T create(Class<T> clazz,
-            String name, BuildCallBack<T> buildCallBack) {
+                    String name, BuildCallBack<T> buildCallBack) {
         T t = build(clazz, name, buildCallBack);
         t.save();
         return t;
     }
 
     public static <T extends GenericModel> T create(Class<T> clazz,
-            BuildCallBack<T> buildCallBack) {
+                    BuildCallBack<T> buildCallBack) {
         T t = build(clazz, buildCallBack);
         t.save();
         return t;
@@ -148,6 +184,7 @@ public class FactoryBoy {
      */
     public static <T extends GenericModel> T build(Class<T> clazz) {
         ModelFactory<T> modelFactory = findModelFactory(clazz);
+        checkOrDeleteModel(clazz, modelFactory);
         T t = modelFactory.define();
         return t;
     }
@@ -162,6 +199,8 @@ public class FactoryBoy {
     public static <T extends GenericModel> T build(Class<T> clazz, String name) {
 
         ModelFactory<T> modelFactory = findModelFactory(clazz);
+        checkOrDeleteModel(clazz, modelFactory);
+
         T t = modelFactory.define();
 
         try {
@@ -174,7 +213,7 @@ public class FactoryBoy {
             if (factory != null && StringUtils.isNotEmpty(factory.base())) {
                 try {
                     Method baseMethod = getModelDefineMethod(clazz,
-                            factory.base(), modelFactory);
+                                    factory.base(), modelFactory);
                     t = invokeModelFactoryMethod(modelFactory, t, baseMethod);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -190,8 +229,8 @@ public class FactoryBoy {
     }
 
     private static <T extends GenericModel> T invokeModelFactoryMethod(
-            ModelFactory<T> modelFactory, T t, Method baseMethod)
-            throws IllegalAccessException, InvocationTargetException {
+                    ModelFactory<T> modelFactory, T t, Method baseMethod)
+                    throws IllegalAccessException, InvocationTargetException {
         int parameterNumber = baseMethod.getParameterTypes().length;
         Object returnObject = null;
         switch (parameterNumber) {
@@ -204,7 +243,7 @@ public class FactoryBoy {
             break;
         case 2:
             returnObject = baseMethod.invoke(modelFactory, t,
-                    sequence(t.getClass()));
+                            sequence(t.getClass()));
         }
         if (returnObject != null) {
             return (T) returnObject;
@@ -213,8 +252,8 @@ public class FactoryBoy {
     }
 
     private static <T extends GenericModel> Method getModelDefineMethod(
-            Class<T> clazz, String name, ModelFactory<T> modelFactory)
-            throws NoSuchMethodException {
+                    Class<T> clazz, String name, ModelFactory<T> modelFactory)
+                    throws NoSuchMethodException {
 
         Method[] allMethods = modelFactory.getClass().getMethods();
 
@@ -227,7 +266,10 @@ public class FactoryBoy {
                 }
             }
         }
-        return null;
+        throw new NoSuchMethodException(
+                        "Please define a method with annotation @Factory(name=\""
+                                        + name + "\") in "
+                                        + modelFactory.getClass().getName());
     }
 
     /**
@@ -238,14 +280,14 @@ public class FactoryBoy {
      * @return
      */
     public static <T extends GenericModel> T build(Class<T> clazz, String name,
-            BuildCallBack<T> buildCallBack) {
+                    BuildCallBack<T> buildCallBack) {
         T t = build(clazz, name);
         buildCallBack.build(t);
         return t;
     }
 
     public static <T extends GenericModel> T build(Class<T> clazz,
-            BuildCallBack<T> buildCallBack) {
+                    BuildCallBack<T> buildCallBack) {
         T t = build(clazz);
         buildCallBack.build(t);
         return t;
@@ -257,7 +299,7 @@ public class FactoryBoy {
      */
 
     public static <T extends GenericModel> List<T> batchCreate(int size,
-            Class<T> clazz, BuildCallBack<T> sequenceCallBack) {
+                    Class<T> clazz, BuildCallBack<T> sequenceCallBack) {
         List<T> list = batchBuild(size, clazz, sequenceCallBack);
         for (T t : list) {
             t.save();
@@ -266,7 +308,7 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> List<T> batchBuild(int size,
-            Class<T> clazz, BuildCallBack<T> buildCallBack) {
+                    Class<T> clazz, BuildCallBack<T> buildCallBack) {
         List<T> list = new ArrayList<T>();
         for (int i = 0; i < size; i++) {
             T t = build(clazz);
@@ -277,7 +319,7 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> List<T> batchCreate(int size,
-            Class<T> clazz, String name, BuildCallBack<T> buildCallBack) {
+                    Class<T> clazz, String name, BuildCallBack<T> buildCallBack) {
         List<T> list = batchBuild(size, clazz, name, buildCallBack);
         for (T t : list) {
             t.save();
@@ -286,7 +328,7 @@ public class FactoryBoy {
     }
 
     public static <T extends GenericModel> List<T> batchBuild(int size,
-            Class<T> clazz, String name, BuildCallBack<T> buildCallBack) {
+                    Class<T> clazz, String name, BuildCallBack<T> buildCallBack) {
         List<T> list = new ArrayList<T>();
         for (int i = 0; i < size; i++) {
             T t = build(clazz, name);

@@ -8,13 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import javax.persistence.Entity;
 import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
+import play.Play;
+import play.classloading.ApplicationClasses;
+import play.db.Model;
 import play.db.jpa.GenericModel;
-import play.db.jpa.Model;
 import play.test.Fixtures;
+import util.DatabaseUtil;
 import factory.annotation.Factory;
 import factory.callback.BuildCallback;
 
@@ -53,8 +55,9 @@ public class FactoryBoy {
      */
     public static void delete(Class<? extends GenericModel>... clazzes) {
         reset();
-        for (Class<? extends GenericModel> type : clazzes) {
-            deleteModelData(type);
+        Fixtures.delete(clazzes);
+        for (Class<? extends GenericModel> clz : clazzes) {
+            modelDeletedSet().add(clz);
         }
     }
 
@@ -63,76 +66,43 @@ public class FactoryBoy {
      */
     public static void deleteAll() {
         reset();
-        Fixtures.deleteDatabase();
+        Fixtures.deleteAllModels();
+        for (ApplicationClasses.ApplicationClass c : Play.classes.getAssignableClasses(Model.class)) {
+		   if( c.javaClass.isAnnotationPresent(Entity.class) ) {
+		       modelDeletedSet().add((Class<? extends Model>)c.javaClass);
+		    }
+        }        
     }
 
     protected static synchronized void checkOrDeleteModel(
                     Class<? extends GenericModel> clazz,
                     ModelFactory<? extends GenericModel> modelFactory) {
-
-        Class<?>[] relationModels = modelFactory.relationModels();
-        if (relationModels != null) {
-            for (Class<?> r : relationModels) {
-                if (GenericModel.class.isAssignableFrom(r)) {
-                    Class<? extends GenericModel> gm = (Class<? extends GenericModel>) r;
-                    deleteModelData(gm);
+        if (!modelDeletedSet().contains(clazz)) {
+            Class<?>[] relationModels = modelFactory.relationModels();
+            if (relationModels != null) {
+                for (Class<?> r : relationModels) {
+                    if (GenericModel.class.isAssignableFrom(r)) {
+                        Class<? extends GenericModel> gm = (Class<? extends GenericModel>) r;
+                        if (!modelDeletedSet().contains(gm)) {
+                            deleteModel(gm);
+                            modelDeletedSet().add(gm);
+                        }
+                    }
                 }
             }
-        }
-        deleteModelData(clazz);
-    }
-
-    protected static <T extends GenericModel> void deleteModelData(Class<T> type) {
-        try {
-            if (!modelDeletedSet().contains(type)) {
-                Model.Manager.factoryFor(type).deleteAll();
-                modelDeletedSet().add(type);
-            }
-        } catch (Exception e) {
-            // Logger.error(e, "While deleting " + type + " instances");
-            if (!modelDeletedSet().contains(type)) {
-                deleteAll(type);
-                modelDeletedSet().add(type);
-            }
+            deleteModel(clazz);
+            modelDeletedSet().add(clazz);
         }
     }
-
-    /**
-     * If T.deleteAll() failed, FactoryBoy will call this deleteAll().
-     * 
-     * @param t
-     * @throws SecurityException
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     */
-    protected static <T extends GenericModel> void deleteAll(Class<T> type) {
-        ModelFactory<T> modelFactory = findModelFactory(type);
-        Logger.info("Try Delete all %s item.", type.getName());
-
-        Method deleteMethod = null;
-        // check the delete(T) had been declared at the concrete ModelFactory
+    
+    private static <T extends GenericModel> void deleteModel(Class<T> clazz) {
+        DatabaseUtil.disableForeignKeyConstraints();
         try {
-            deleteMethod = modelFactory.getClass().getMethod("delete",
-                            type);
-        } catch (Exception e) {
-            throw new RuntimeException("Delete " + type.getName()
-                            + " Failed! Please define delete("
-                            + type.getName() + ") at the class "
-                            + modelFactory.getClass().getName() + ".");
+            Model.Manager.factoryFor(clazz).deleteAll();
+        } catch(Exception e) {
+            Logger.error(e, "While deleting " + clazz + " instances");
         }
-
-        List<T> all;
-        try {
-            Method findAllMethod = type.getMethod("findAll", new Class<?>[] {});
-            all = (List<T>) findAllMethod.invoke(type, new Object[] {});
-            for (T t : all) {
-                deleteMethod.invoke(modelFactory, t);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        DatabaseUtil.enableForeignKeyConstraints();        
     }
 
     public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(

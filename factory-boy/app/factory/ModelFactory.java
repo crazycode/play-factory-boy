@@ -10,13 +10,4 @@ public abstract class ModelFactory<T extends GenericModel> {
         return null;
     }
 
-    /**
-     * If T.deleteAll() failed, FactoryBoy will call delete(t) for each.
-     * 
-     * @param t
-     */
-    public void delete(T t) {
-
-    }
-
 }

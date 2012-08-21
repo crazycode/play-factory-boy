@@ -6,6 +6,7 @@ import models.Product;
 import models.UnUseModel;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import play.test.UnitTest;
@@ -75,14 +76,15 @@ public class FactoryBoyTest extends UnitTest {
 
     @Test
     public void testRelationModel() {
-        FactoryBoy.create(Order.class);
+        Order order = FactoryBoy.create(Order.class);
+        assertTrue(order.isPersistent());
         FactoryBoy.create(OrderItem.class);
+        assertTrue(order.isPersistent());
         assertEquals(2l, Order.count());
         assertEquals(1l, OrderItem.count());
         FactoryBoy.lazyDelete();
         FactoryBoy.create(Order.class);
         assertEquals(0l, OrderItem.count());
-
         assertEquals(1l, Order.count());
 
     }

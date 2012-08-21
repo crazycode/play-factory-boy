@@ -43,11 +43,6 @@ public class FactoryBoyDeleteTest extends UnitTest {
 
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testCustomDeleteFailed() throws Exception {
-        FactoryBoy.delete(Category.class);
-    }
-
     @Test
     public void testCustomDeleteProduct() throws Exception {
         assertEquals(7l, Category.count());

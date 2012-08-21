@@ -39,12 +39,4 @@ public class ProductFactory extends ModelFactory<Product> {
         product.name = "Product " + seq;
     }
 
-    @Override
-    public void delete(Product t) {
-        if (t.categories != null && t.categories.size() > 0) {
-            t.categories.clear();
-            t.save();
-        }
-        t.delete();
-    }
 }

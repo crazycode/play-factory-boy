@@ -79,10 +79,12 @@ public class ProductTest extends UnitTest {
         product = FactoryBoy.create(Product.class, "hhkb");
         assertEquals("HHKB", product.name);
         assertEquals(new BigDecimal("2000.00"), product.price);
-
+        assertTrue(product.isPersistent());
+        
         Product product2 = FactoryBoy.create(Product.class, "hhkb2");
         assertEquals("HHKB Pro2", product2.name);
         assertEquals(new BigDecimal("2000.00"), product2.price);
+        assertTrue(product.isPersistent());
     }
 
     @Test

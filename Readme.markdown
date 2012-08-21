@@ -203,25 +203,6 @@ Play FactoryBoy提供了2种方法进行更精细的数据清除：
     }
 
 
-### 自定义数据删除方法 (Optional)
-在Model Factory类中也可以定义delete(T)方法，在清空当前Model失败时，会通过查找出所有对象后，调用此方法依次删除每个Model对象。
-
-以下是一个例子：
-
-    public class ProductFactory extends ModelFactory<Product> {
-
-        // ...
-
-        @Override
-        public void delete(Product t) {
-            if (t.categories != null && t.categories.size() > 0) {
-                t.categories.clear();
-                t.save();
-            }
-            t.delete();
-        }
-    }
-
 ## UnitTest和FunctionalTest中的使用
 
 ### Unit setUp方法
@@ -237,15 +218,13 @@ Play FactoryBoy提供了三种方法放在UnitTest的setUp方法中，以进行�
 
 如果应用程序有插件需要加载一些配置数据，则不要使用此方法。
 
-#### FactoryBoy.lazyDelete()
+#### FactoryBoy.lazyDelete() (推荐)
 延迟删除数据，只有在Model第一次调用FactoryBoy.create方法时才进行数据清除：
 
     @Before
     public void setUp() {
         FactoryBoy.lazyDelete();
     }
-
-如果有外键约束等问题，请参考*ModelFactory.relationModels()*方法或*ModelFactory.delete(T)*方法。
 
 #### FactoryBoy.delete(Model.class...)
 按顺序删除指定的Model：
@@ -278,7 +257,6 @@ Play FactoryBoy提供了三种方法放在UnitTest的setUp方法中，以进行�
 
         @Before
         public void setUp() {
-            //FactoryBoy.delete(Product.class);
             FactoryBoy.lazyDelete();
         }
 

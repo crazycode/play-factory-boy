@@ -8,8 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.persistence.Entity;
+
+import junit.framework.AssertionFailedError;
+
 import org.apache.commons.lang.StringUtils;
+
 import play.Logger;
 import play.Play;
 import play.classloading.ApplicationClasses;
@@ -28,6 +33,8 @@ public class FactoryBoy {
 
     protected static ThreadLocal<Set<Class<?>>> _threadLocalModelDeletedSet = new ThreadLocal<Set<Class<?>>>();
 
+    protected static ThreadLocal<Map<Class<?>, Object>> _lastObjectMap = new ThreadLocal<Map<Class<?>, Object>>();
+    
     protected static synchronized Set<Class<?>> modelDeletedSet() {
         Set<Class<?>> modelDeletedSet = _threadLocalModelDeletedSet.get();
         if (modelDeletedSet == null) {
@@ -36,8 +43,18 @@ public class FactoryBoy {
         }
         return modelDeletedSet;
     }
+    
+    protected static synchronized Map<Class<?>, Object> lastObjectMap() {
+    	Map<Class<?>, Object> lastObjectMap = _lastObjectMap.get();
+    	if (lastObjectMap == null) {
+    		lastObjectMap = new HashMap<Class<?>, Object>();
+    		_lastObjectMap.set(lastObjectMap);
+    	}
+    	return lastObjectMap;
+    }
 
     protected static void reset() {
+    	_lastObjectMap.set(null);
         _threadLocalModelDeletedSet.set(null);
     }
 
@@ -50,7 +67,7 @@ public class FactoryBoy {
 
     /**
      * Deletes the specified Models.
-     * 
+     *
      * @param clazzes
      */
     public static void delete(Class<? extends GenericModel>... clazzes) {
@@ -68,10 +85,10 @@ public class FactoryBoy {
         reset();
         Fixtures.deleteAllModels();
         for (ApplicationClasses.ApplicationClass c : Play.classes.getAssignableClasses(Model.class)) {
-		   if( c.javaClass.isAnnotationPresent(Entity.class) ) {
-		       modelDeletedSet().add((Class<? extends Model>)c.javaClass);
-		    }
-        }        
+           if( c.javaClass.isAnnotationPresent(Entity.class) ) {
+               modelDeletedSet().add((Class<? extends Model>)c.javaClass);
+            }
+        }
     }
 
     protected static synchronized void checkOrDeleteModel(
@@ -94,7 +111,7 @@ public class FactoryBoy {
             modelDeletedSet().add(clazz);
         }
     }
-    
+
     private static <T extends GenericModel> void deleteModel(Class<T> clazz) {
         DatabaseUtil.disableForeignKeyConstraints();
         try {
@@ -102,7 +119,7 @@ public class FactoryBoy {
         } catch(Exception e) {
             Logger.error(e, "While deleting " + clazz + " instances");
         }
-        DatabaseUtil.enableForeignKeyConstraints();        
+        DatabaseUtil.enableForeignKeyConstraints();
     }
 
     public static synchronized <T extends GenericModel> ModelFactory<T> findModelFactory(
@@ -129,46 +146,46 @@ public class FactoryBoy {
 
     /**
      * Create the <i>clazz</i> Object and SAVE it to Database.
-     * 
+     *
      * @param clazz
      * @return
      */
     public static <T extends GenericModel> T create(Class<T> clazz) {
         T t = build(clazz);
-        t.save();
+        saveModelObject(t);
         return t;
     }
 
     /**
      * Create the named <i>clazz</i> Object and SAVE it to Database.
-     * 
+     *
      * @param clazz
      * @param name
      * @return
      */
     public static <T extends GenericModel> T create(Class<T> clazz, String name) {
         T t = build(clazz, name);
-        t.save();
+        saveModelObject(t);
         return t;
     }
 
     public static <T extends GenericModel> T create(Class<T> clazz,
                     String name, BuildCallback<T> buildCallback) {
         T t = build(clazz, name, buildCallback);
-        t.save();
+        saveModelObject(t);
         return t;
     }
 
     public static <T extends GenericModel> T create(Class<T> clazz,
                     BuildCallback<T> buildCallback) {
         T t = build(clazz, buildCallback);
-        t.save();
+        saveModelObject(t);
         return t;
     }
 
     /**
      * Build the <i>clazz</i> Object, but NOT save it.
-     * 
+     *
      * @param clazz
      * @return
      */
@@ -181,7 +198,7 @@ public class FactoryBoy {
 
     /**
      * Build the named <i>clazz</i> Object, but NOT save it.
-     * 
+     *
      * @param clazz
      * @param name
      * @return
@@ -262,7 +279,7 @@ public class FactoryBoy {
 
     /**
      * Build the named <i>clazz</i> Object, but NOT save it.
-     * 
+     *
      * @param clazz
      * @param name
      * @return
@@ -290,7 +307,7 @@ public class FactoryBoy {
                     Class<T> clazz, BuildCallback<T> sequenceCallback) {
         List<T> list = batchBuild(size, clazz, sequenceCallback);
         for (T t : list) {
-            t.save();
+            saveModelObject(t);
         }
         return list;
     }
@@ -310,10 +327,15 @@ public class FactoryBoy {
                     Class<T> clazz, String name, BuildCallback<T> buildCallback) {
         List<T> list = batchBuild(size, clazz, name, buildCallback);
         for (T t : list) {
-            t.save();
+            saveModelObject(t);
         }
         return list;
     }
+
+	private static <T extends GenericModel> void saveModelObject(T t) {
+		t.save();
+		lastObjectMap().put(t.getClass(), t);
+	}
 
     public static <T extends GenericModel> List<T> batchBuild(int size,
                     Class<T> clazz, String name, BuildCallback<T> buildCallback) {
@@ -333,5 +355,15 @@ public class FactoryBoy {
         }
         modelSequenceMap.put(clazz, ++seq);
         return seq;
+    }
+
+    public static <T extends GenericModel> T last(Class<T> clazz) {
+    	T lastObject = (T) lastObjectMap().get(clazz);
+    	if (lastObject == null) {
+    		throw new AssertionFailedError("Can't get the last " + clazz.getName() 
+    				+ " Object, Please call FactoryBoy.create(" 
+    				+ clazz.getName() + ".class) at first.");
+    	}
+        return lastObject;
     }
 }

@@ -366,4 +366,20 @@ public class FactoryBoy {
     	}
         return lastObject;
     }
+
+    public static <T extends GenericModel> T lastOrCreate(Class<T> clazz) {
+    	T lastObject = (T) lastObjectMap().get(clazz);
+    	if (lastObject == null) {
+    		return create(clazz);
+    	}
+        return lastObject;
+    }
+
+    public static <T extends GenericModel> T lastOrCreate(Class<T> clazz, String name) {
+    	T lastObject = (T) lastObjectMap().get(clazz);
+    	if (lastObject == null) {
+    		return create(clazz, name);
+    	}
+        return lastObject;
+    }
 }

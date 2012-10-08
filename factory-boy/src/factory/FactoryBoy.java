@@ -18,6 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.Play;
 import play.classloading.ApplicationClasses;
+import play.classloading.ApplicationClassloader;
 import play.db.Model;
 import play.db.jpa.GenericModel;
 import play.test.Fixtures;
@@ -134,14 +135,12 @@ public class FactoryBoy {
         String modelFactoryName = clazzFullName.replaceAll("^models\\.",
                         "factory.") + "Factory";
         try {
-            modelFactory = (ModelFactory<T>) Class.forName(modelFactoryName)
-                            .newInstance();
+            modelFactory = (ModelFactory<T>) Play.classloader.loadApplicationClass(modelFactoryName).newInstance();
             modelFactoryCacheMap.put(clazz, modelFactory);
             return modelFactory;
         } catch (Exception e) {
-            // Don't need throw the exception.
+            throw new RuntimeException("Can't find class:" + modelFactoryName, e);
         }
-        throw new RuntimeException("Can't find class:" + modelFactoryName);
     }
 
     /**

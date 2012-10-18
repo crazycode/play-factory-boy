@@ -128,6 +128,48 @@ build方法与create方法的区别是产生的对象没有保存到数据库。
 
 通过build方法，可以快速生成纯POJO对象，用于辅助测试。
 
+### last方法/lastOrCreate方法
+有些情况下，构建Factory类时需要使用其它类的实例，如：
+
+    public class OrderItemFactory extends ModelFactory<OrderItem> {
+        @Override
+        public OrderItem define() {
+            OrderItem orderItem = new OrderItem();
+            orderItem.order = FactoryBoy.create(Order.class);
+            orderItem.product = FactoryBoy.create(Product.class, "random");
+            return orderItem;
+        }
+    }
+
+上例中使用FactoryBoy.create()方法生成order和product属性，可能会产生不需要的实例，而且不容易在测试中引用这些产生的实例，在测试时亦无法灵活控制其创建方式。
+
+FactoryBoy提供last方法，只要把上例中的create方法换成last方法，last方法会得到最后一次调用create方法所产生的实例对象：
+
+    public class OrderItemFactory extends ModelFactory<OrderItem> {
+        @Override
+        public OrderItem define() {
+            OrderItem orderItem = new OrderItem();
+            orderItem.order = FactoryBoy.last(Order.class);
+            orderItem.product = FactoryBoy.last(Product.class, "random");
+            return orderItem;
+        }
+    }
+
+在测试时，按以下顺序调用FactoryBoy：
+
+    Order order = FactoryBoy.create(Order.class);
+    Product product = FactoryBoy.create(Product.class);
+    OrderItem orderItem = FactoryBoy.create(OrderItem.class);
+    
+这时，orderItem的order和product属性会使用第1、2行所创建的order和product对象，这些对象可以使用前述任何create方法创建，更加灵活以适应不同测试场景。
+
+注意：如果在调用FactoryBoy.last()方法时，所指定的类没有被调用过FactoryBoy.create()，测试会中断并抛出异常。
+
+如果希望提供一个更安全的选择，可以使用FactoryBoy.lastOrCreate()方法，此方法将先调用FactoryBoy.last()方法，如果没有找到预先创建的实例，则会调用FactoryBoy.create()方法建立新的实例。
+
+相对FactoryBoy.last()方法，FactoryBoy.lastOrCreate()提供了一个更安全方便的选择，我推荐在ModelFactory中，如果需要使用其它类实例，尽量使用FactoryBoy.lastOrCreate()方法。
+
+
 ## 定义Model Factory
 
 以下是一个models.Product类对应的ModelFactory类的例子：
@@ -233,6 +275,29 @@ Play FactoryBoy提供了三种方法放在UnitTest的setUp方法中，以进行�
     public void setUp() throws Exception {
         FactoryBoy.delete(Product.class, Category.class);
     }
+    
+## Selenium测试中的使用
+Play FactoryBoy提供了一个#{factory}标签，用于在Selenium测试中使用FactoryBoy，可完全代替PlayFramework 1.x提供的#{fixture}标签。
+
+以下是一个例子：
+
+    #{factory delete:'all’}
+    #{factory var:’pp', type:'Product'/}
+
+    #{selenium 'Test Get Products'}
+      open('/products')
+      verifyTextPresent('1 Products')
+  
+      open('/products/${pp.id}')
+      verifyValue('id=object_name’,’${pp.name}’)
+    #{/selenium}
+
+上例中，#{factory}标签了以下选项：
+
+* delete:’all’  用于删除所有测试数据。
+* type:  指定需要加载的Model类名，注意需要写全除models外的完整类名称，如类models.cms.Post对应的加载写法应为type:’cms.Post’
+* id: 可选，指定FactoryBoy生成对象在测试时所使用的名字
+* name: 可选，调用指定ModelFactory对应名称的生成方法，参考 [link](按名称进行create)按名称进行create
 
 # 附录
 在samples-and-tests/demo目录有完整的使用例子和测试用例。

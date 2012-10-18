@@ -381,4 +381,25 @@ public class FactoryBoy {
     	}
         return lastObject;
     }
+    
+    
+    /**
+     * Create Object by Type Name, used by Selenium Test.
+     * @param typeName
+     * @return
+     */
+    public static <T extends GenericModel> T createByName(String typeName) {
+    	Class<T> clazz = (Class<T>)play.Play.classloader.getClassIgnoreCase("models." + typeName);
+    	return create(clazz);
+    }
+
+    public static <T extends GenericModel> T createByName(String typeName, String name) {
+    	Class<T> clazz = (Class<T>)play.Play.classloader.getClassIgnoreCase("models." + typeName);
+    	return create(clazz, name);
+    }
+    
+    public static String getSimpleVariableName(String typeName) {
+    	Class<?> clazz = play.Play.classloader.getClassIgnoreCase("models." + typeName);
+    	return clazz.getSimpleName().toLowerCase();
+    }
 }

@@ -1,0 +1,9 @@
+#{factory delete:'all', var:'pp', type:'Product'/}
+
+#{selenium 'Test Get Products'}
+  open('/products')
+  verifyTextPresent('1 Products')
+  
+  open('/products/${pp.id}')
+  verifyValue('id=object_name','Sample Product')
+#{/selenium}

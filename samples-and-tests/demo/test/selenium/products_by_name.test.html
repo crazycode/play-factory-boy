@@ -1,0 +1,11 @@
+#{factory delete:'all'/}
+#{factory type:'Product', name:'hhkb' /}
+
+#{selenium 'Test Get Products'}
+  open('/products')
+  verifyTextPresent('1 Products')
+
+  open('/products/${product.id}')
+  verifyValue('id=object_name','HHKB')
+
+#{/selenium}

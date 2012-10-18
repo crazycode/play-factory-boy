@@ -26,4 +26,18 @@ public class ProductsTest extends FunctionalTest {
                 });
 
     }
+    
+    @Test
+    public void testCreateByName() {
+    	Product p = FactoryBoy.createByName("Product");
+    	assertNotNull(p);
+    	assertTrue(p.isPersistent());
+    }
+    
+    @Test
+    public void testCreateByName2() {
+    	Product p = FactoryBoy.createByName("Product", "hhkb");
+    	assertNotNull(p);
+    	assertTrue(p.isPersistent());
+    }
 }

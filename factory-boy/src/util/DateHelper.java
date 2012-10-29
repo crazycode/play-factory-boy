@@ -39,6 +39,11 @@ public final class DateHelper {
 
     }
 
+    
+    public static Date afterMinuts(int minuts) {
+    	return afterMinuts(new Date(), minuts);
+    }
+    
     public static Date afterMinuts(String dateSource, int minuts) {
         return afterMinuts(t(dateSource), minuts);
     }
@@ -50,6 +55,10 @@ public final class DateHelper {
         return cal.getTime();
     }
 
+    public static Date beforeMinuts(int minuts) {
+    	return beforeMinuts(new Date(), minuts);
+    }
+    
     public static Date beforeMinuts(String dateSource, int minuts) {
         return beforeMinuts(t(dateSource), minuts);
     }
@@ -61,6 +70,10 @@ public final class DateHelper {
         return cal.getTime();
     }
 
+    public static Date afterHours(int hours) {
+    	return afterHours(new Date(), hours);
+    }
+    
     public static Date afterHours(String dateSource, int hours) {
         return afterHours(t(dateSource), hours);
     }
@@ -72,6 +85,10 @@ public final class DateHelper {
         return cal.getTime();
     }
 
+    public static Date beforeHours(int hours) {
+    	return beforeHours(new Date(), hours);
+    }
+    
     public static Date beforeHours(String dateSource, int hours) {
         return beforeHours(t(dateSource), hours);
     }
@@ -83,6 +100,10 @@ public final class DateHelper {
         return cal.getTime();
     }
 
+    public static Date afterDays(int days) {
+    	return afterDays(new Date(), days);
+    }
+    
     public static Date afterDays(String dateSource, int days) {
         return afterDays(t(dateSource), days);
     }
@@ -94,6 +115,10 @@ public final class DateHelper {
         return cal.getTime();
     }
 
+    public static Date beforeDays(int days) {
+    	return beforeDays(new Date(), days);
+    }
+    
     public static Date beforeDays(String dateSource, int days) {
         return beforeDays(t(dateSource), days);
     }

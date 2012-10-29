@@ -6,7 +6,7 @@ Play Framework 1.x提供了Fixture功能，即通过yaml文件定义初始化测
 
 在测试中如果大量使用Fixture，除了生成、修改测试数据比较困难外，还有以下缺点：
 
-* YAML文件在适应不同测试条件是不够灵活，只能通过定义大量Fixuture来使用不同条件，难维护
+* YAML文件在适应不同测试条件是不够灵活，只能通过定义大量Fixuture来适用不同条件，难维护
 * YAML文件定义的Fixture与Test内容不在同一文件，编写测试时需要来回切换文件检查测试数据
 * 不支持Model重构，在数据Model变更后，维护大量Fixture的字段相当烦人
 * Fixture是全局的，在多个测试共用时容易互相影响
@@ -63,7 +63,7 @@ FactoryBoy提供了多种方式进行测试数据的建立：
 ### 使用回调方法BuildCallback或SequenceCallback进行create
 并不需要所有的自定义数据都通过Factory类中定义，可以通过在测试代码中使用BuildCallback方法对特定属性进行覆盖：
 
-如以下建立Order对象的层次依赖关系：
+如以下建立Category对象的层次依赖关系：
 
         final Category parent = FactoryBoy.create(Category.class);
         FactoryBoy.create(Category.class,
@@ -229,7 +229,7 @@ Factory类还支持以下方法：
 Play FactoryBoy提供了2种方法进行更精细的数据清除：
 
 ### 定义相关Model (Optional)
-在Model Factory类中可以实现relationModels方法，指定需要在删除当前Models前，先删除的其它Model，这样可以避免因外键约束而导致删除失败。
+在Model Factory类中可以实现relationModels方法，指定需要在删除当前Model前，先删除的其它Model，这样可以避免因外键约束而导致删除失败。
 
 以下是一个例子：
 

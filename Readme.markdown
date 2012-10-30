@@ -281,7 +281,7 @@ Play FactoryBoy提供了一个#{factory}标签，用于在Selenium测试中使�
 
 以下是一个例子：
 
-    #{factory delete:'all’}
+    #{factory delete:'all’/}
     #{factory var:’pp', type:'Product'/}
 
     #{selenium 'Test Get Products'}

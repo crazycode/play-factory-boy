@@ -18,8 +18,10 @@ Play FactoryBoy的设计目标就是用于解决上述问题，其主要设计�
 
 Play FactoryBoy有以下优点：
 
+* 快，更少的代码，运行速度比Fixtures写的测试快5-10倍
 * 完全使用Java代码定义测试数据，强类型，支持重构
 * 通过Callback方法重定义测试数据
+* 支持UnitTest, FunctionalTest, Selenium测试
 * 支持批量生成测试数据
 * 支持通过build方法生成数据对象而不保存到数据库
 

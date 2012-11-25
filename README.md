@@ -2,29 +2,31 @@
 
 ## The disadvantages of Play Framework 1.x Fixture
 
-Play Framework 1.x provides Fixture functionality of defining initial data for testing via YAML file
+Play Framework 1.x provides Fixture functionality of defining initial data for testing via YAML file.
 
 If you make heavy use of Fixture, it is more difficult to generate or modify test data. In addition, it has the following drawbacks:
 
 * It is not quite flexible for YAML file to adapt to different test conditions, because only by using a number of Fixture can it be done so that it is difficult to maintain.
-* The contents of Test and Fixture defined by YAML files are on different files, so you need to switch files back and forth to check test data when writing tests.
+* The contents of Test and Fixture defined by YAML files are on different files, so you need to keep switching between files to check test data and always struggling with dependencies and conflicts.
 * It is hard to maintain a lot of Fixture after data changes occur, because Model refactoring are not supported. 
 * Fixture will interfere with each other when used in multiple tests because of its global scope.
 * It is hard to use Fixture, because there is no quick reference for Fixture in the code except finding it with idCache. 
 
 ## The objectives of Play FactoryBoy
 
-Play FactoryBoy is designed to solve the problem above. The main idea comes from the popular FactoryGirl among Ruby on Rails ( a tool used to construct test data using Factory/Build pattern ), so named for Play FactoryBoy.  
+Play FactoryBoy is designed to solve the problem above. The main idea comes from FactoryGirl in Ruby on Rails ( a tool used to construct test data using Factory/Build pattern ), so named for Play FactoryBoy.  
 
 The advantages are as follows:
 
+* reduce the code and execute 5-10 times faster than the code by Fixture
 * define test data and strong type and support refactoring implemented fully in Java
 * redefine test data by calling Callback method
+* support UnitTest, FunctionalTest, Selenium test
 * generate test data in batches
 * generate data objects but not saved to the database via build method 
 
 The source code is in Github：<https://github.com/crazycode/play-factory-boy>.
-Currently, you can only add Play FactoryBoy module to Project Dependencies. Later, I will add it to official module source.
+Currently, you can only add Play FactoryBoy module to Project Dependencies when using it. Later, I will add it to official module source.
 
 # User's Guide
 

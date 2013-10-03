@@ -1,6 +1,6 @@
 # Overview
 
-## The disadvantages of Play Framework 1.x Fixture
+## Not Fixtures
 
 Play Framework 1.x provides _Fixture_ functionality of defining initial data for testing via YAML file.
 
@@ -13,7 +13,7 @@ In addition, it has the following drawbacks:
 * Fixture will interfere with each other when used in multiple tests because of its global scope.
 * It is hard to use Fixture, because there is no quick reference for Fixture in the code except finding it with idCache. 
 
-## The objectives of Play FactoryBoy
+## Objectives
 
 Play FactoryBoy is designed to solve the problem above. The main idea comes from FactoryGirl in Ruby on Rails ( a tool used to construct test data using Factory/Build pattern ), so named for Play FactoryBoy.  
 
